@@ -43,7 +43,7 @@ impl Todos {
           }
         None => todo!(),
       }
-      env::log(b"guess is too low ");
+      env::log(b"The todo was not found");
 
   }
 
@@ -63,7 +63,7 @@ impl Todos {
           }
         }
         None => {
-          env::log(b"guess is too low ");
+          env::log(b"The todo was not for this user");
         }
       }
     }
@@ -72,6 +72,7 @@ impl Todos {
   }
 }
 
+#[cfg(test)]
 mod tests {
   use super::*;
   use near_sdk::MockedBlockchain;
@@ -102,6 +103,14 @@ mod tests {
   }
 
   // mark individual unit tests with #[test] for them to be registered and fired
-
+  #[test]
+  fn add_todo() {
+    let mut context = get_context(b"addTodo".to_vec(), false);
+    let mut todos = Todos { todos: Vec::new() };
+    let todo_title = String::from("test todo");
+    todos.addTodo(todo_title);
+    let todo_ = todos.getTodo(0);
+    assert_eq!(todo_.unwrap().title, todo_title);
+  }
 
 }
