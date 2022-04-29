@@ -23,9 +23,9 @@ To mark a Todo as complete `near call dalmasonto.testnet mark_todo_as_complete_o
 
 ### Main methods
 
-`add_todo`
-`get_my_todos`
-`mark_todo_as_complete_or_incomplete`
+* `add_todo`
+* `get_my_todos`
+* `mark_todo_as_complete_or_incomplete`
 
 ## Authors
 
