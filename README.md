@@ -1,8 +1,8 @@
-# NEAR Smart Contract Rust Template
+# NEAR ToDo App
 
 Project structure for writing smart contracts in Rust for NEAR Protocol
 
-# Required Software
+## Required Software
 
 - Rust + cargo          
 - Node.js
@@ -25,7 +25,8 @@ To mark a Todo as complete `near call dalmasonto.testnet mark_todo_as_complete_o
 
 `add_todo`
 `get_my_todos`
+`mark_todo_as_complete_or_incomplete`
 
-# Authors
+## Authors
 
 - Dalmas Ogembo <dalmasogembo@gmail.com> [@dalmasonto](https://twitter.com/dalmasonto)
