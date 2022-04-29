@@ -3,7 +3,7 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::{env, near_bindgen};
 near_sdk::setup_alloc!();
 
-
+#[derive(Debug)]
 pub struct Todo {
   id: u8,
   user: String,
@@ -16,43 +16,40 @@ pub struct Todos {
 }
 
 impl Todos {
-  pub fn addTodo(&mut self, title: String) {
+  pub fn add_todo(&mut self, title: String) {
     let account_id = env::signer_account_id();
     let user: String = String::from(account_id);
     let len_ = self.todos.len();
-    let id___ = len_ as u8; //i8::from(len_);
+    let id___ = len_ as u8;
     let todo = Todo {
       id: id___ ,
-      user: user,
-      title: title,
+      user,
+      title,
       complete: false,
     };
     self.todos.push(todo);
   }
 
-  pub fn markTodoAsCompleteorIncomplete(&mut self, todo_id: u8) {
-      let mut todo__ = self.getTodo(todo_id);
-      match todo__{
-          Some(x) => {
-              if x.complete == true{
-                  x.complete = false
-              }
-              else{
-                  x.complete = true;
-              }
+  pub fn mark_todo_as_complete_or_incomplete(&mut self, todo_id: u8) {
+      let todos = &mut self.todos;
+
+      todos.into_iter().for_each(|item| {
+          if item.id == todo_id {
+              item.complete = true;
           }
-        None => todo!(),
-      }
-      env::log(b"The todo was not found");
+      });
+      env::log(b"The todo has been marked as complete");
 
   }
 
-  fn getTodo(&mut self, id: u8) -> Option<&mut Todo> {
-    let todo_with_id = self.todos.iter_mut().filter(|x| x.id == id).next();
-    return todo_with_id;
+  pub fn get_todo(&mut self, id: u8) -> Option<&Todo>{
+    let me: &Vec<Todo> = &self.todos;
+    let  todo =  me.into_iter().find(|tod| tod.id == id);
+    return todo;
+
   }
 
-  pub fn getUserTodos(&mut self, user: String) -> Vec<&Todo> {
+  pub fn get_user_todos(&mut self, user: String) -> Vec<&Todo> {
     let mut todos_to_return: Vec<&Todo> = Vec::new();
     for n in 0..self.todos.len() {
       let todo_ = self.todos.get(n);
@@ -63,7 +60,7 @@ impl Todos {
           }
         }
         None => {
-          env::log(b"The todo was not for this user");
+          // env::log(b"The todo was not for this user");
         }
       }
     }
@@ -76,6 +73,7 @@ impl Todos {
 mod tests {
   use super::*;
   use near_sdk::MockedBlockchain;
+  use near_sdk::test_utils::VMContextBuilder;
   use near_sdk::{testing_env, VMContext};
 
   // part of writing unit tests is setting up a mock context
@@ -84,7 +82,7 @@ mod tests {
   fn get_context(input: Vec<u8>, is_view: bool) -> VMContext {
     VMContext {
       current_account_id: "alice.testnet".to_string(),
-      signer_account_id: "robert.testnet".to_string(),
+      signer_account_id: "dalmasonto.testnet".to_string(),
       signer_account_pk: vec![0, 1, 2],
       predecessor_account_id: "jane.testnet".to_string(),
       input,
@@ -104,13 +102,44 @@ mod tests {
 
   // mark individual unit tests with #[test] for them to be registered and fired
   #[test]
-  fn add_todo() {
-    let mut context = get_context(b"addTodo".to_vec(), false);
+  fn add_todo_test() {
+    let _context = get_context(b"add_todo".to_vec(), false);
+    testing_env!(_context);
     let mut todos = Todos { todos: Vec::new() };
-    let todo_title = String::from("test todo");
-    todos.addTodo(todo_title);
-    let todo_ = todos.getTodo(0);
-    assert_eq!(todo_.unwrap().title, todo_title);
+    let todo_title = "test todo".to_string();
+    todos.add_todo(todo_title);
+    assert_eq!(todos.todos.len(), 1);
+  }
+
+  #[test]
+  fn mark_todo_as_complete_test(){
+    let _context = get_context(b"mark_todo_as_complete_or_incomplete".to_vec(), false);
+    testing_env!(_context);
+    let mut todos: Todos = Todos { todos: Vec::new()};
+    todos.add_todo("Learn How to code in rust".to_string());
+    todos.mark_todo_as_complete_or_incomplete(0);
+    let get_one_todo = todos.get_todo(0);
+    match get_one_todo{
+        Some(x_) => {
+            assert_eq!(x_.complete, true);
+        }
+        None => {
+          env::log(b"Todo not found");
+        }
+    }
+
+  }
+
+  #[test]
+  fn get_user_todos_test(){
+    let _context = get_context(b"get_user_todos".to_vec(), false);
+    testing_env!(_context);
+    let mut todos: Todos = Todos { todos: Vec::new()};
+
+    todos.add_todo("Learn How to code in rust".to_string());
+    let user_todos = todos.get_user_todos("dalmasonto.testnet".to_string());
+    
+    assert_eq!(user_todos.len(), 1);
   }
 
 }
