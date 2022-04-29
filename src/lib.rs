@@ -1,20 +1,26 @@
 
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::serde::Serialize;
 use near_sdk::{env, near_bindgen};
-near_sdk::setup_alloc!();
+// near_sdk::setup_alloc!();
 
-#[derive(Debug)]
+// #[near_bindgen]
+#[derive(Serialize, BorshDeserialize, BorshSerialize)]
+#[serde(crate = "near_sdk::serde")]
 pub struct Todo {
   id: u8,
   user: String,
   title: String,
-  complete: bool,
+  complete: bool
 }
 
+#[near_bindgen]
+#[derive(Default, BorshDeserialize, BorshSerialize)]
 pub struct Todos {
-  todos: Vec<Todo>,
+  todos: Vec<Todo>
 }
 
+#[near_bindgen]
 impl Todos {
   pub fn add_todo(&mut self, title: String) {
     let account_id = env::signer_account_id();
@@ -33,12 +39,15 @@ impl Todos {
   pub fn mark_todo_as_complete_or_incomplete(&mut self, todo_id: u8) {
       let todos = &mut self.todos;
 
+      let account_id = env::signer_account_id();
+      let user: String = String::from(account_id);
+
       todos.into_iter().for_each(|item| {
-          if item.id == todo_id {
+          if item.id == todo_id && item.user == user {
               item.complete = true;
+              env::log_str("The todo has been marked as complete");
           }
       });
-      env::log(b"The todo has been marked as complete");
 
   }
 
@@ -46,10 +55,11 @@ impl Todos {
     let me: &Vec<Todo> = &self.todos;
     let  todo =  me.into_iter().find(|tod| tod.id == id);
     return todo;
-
   }
 
-  pub fn get_user_todos(&mut self, user: String) -> Vec<&Todo> {
+  pub fn get_my_todos(&mut self) -> Vec<&Todo> {
+    let account_id = env::signer_account_id();
+    let user: String = String::from(account_id);
     let mut todos_to_return: Vec<&Todo> = Vec::new();
     for n in 0..self.todos.len() {
       let todo_ = self.todos.get(n);
@@ -79,31 +89,39 @@ mod tests {
   // part of writing unit tests is setting up a mock context
   // in this example, this is only needed for env::log in the contract
   // this is also a useful list to peek at when wondering what's available in env::*
-  fn get_context(input: Vec<u8>, is_view: bool) -> VMContext {
-    VMContext {
-      current_account_id: "alice.testnet".to_string(),
-      signer_account_id: "dalmasonto.testnet".to_string(),
-      signer_account_pk: vec![0, 1, 2],
-      predecessor_account_id: "jane.testnet".to_string(),
-      input,
-      block_index: 0,
-      block_timestamp: 0,
-      account_balance: 0,
-      account_locked_balance: 0,
-      storage_usage: 0,
-      attached_deposit: 0,
-      prepaid_gas: 10u64.pow(18),
-      random_seed: vec![0, 1, 2],
-      is_view,
-      output_data_receivers: vec![],
-      epoch_height: 19,
-    }
+  // fn get_context(input: Vec<u8>, is_view: bool) -> VMContext {
+  //   VMContext {
+  //     current_account_id: "alice.testnet".to_string(),
+  //     signer_account_id: "dalmasonto.testnet".to_string(),
+  //     signer_account_pk: vec![0, 1, 2],
+  //     predecessor_account_id: "jane.testnet".to_string(),
+  //     input,
+  //     block_index: 0,
+  //     block_timestamp: 0,
+  //     account_balance: 0,
+  //     account_locked_balance: 0,
+  //     storage_usage: 0,
+  //     attached_deposit: 0,
+  //     prepaid_gas: 10u64.pow(18),
+  //     random_seed: vec![0, 1, 2],
+  //     is_view,
+  //     output_data_receivers: vec![],
+  //     epoch_height: 19,
+  //   }
+  // }
+  fn get_context(is_view: bool) -> VMContext {
+    VMContextBuilder::new()
+        .signer_account_id("dalmasonto.testnet".to_string().try_into().unwrap())
+        .is_view(is_view)
+        .build()
   }
 
   // mark individual unit tests with #[test] for them to be registered and fired
   #[test]
   fn add_todo_test() {
-    let _context = get_context(b"add_todo".to_vec(), false);
+    // let _context = get_context(b"add_todo".to_vec(), false);
+    let _context = get_context(false);
+
     testing_env!(_context);
     let mut todos = Todos { todos: Vec::new() };
     let todo_title = "test todo".to_string();
@@ -113,7 +131,9 @@ mod tests {
 
   #[test]
   fn mark_todo_as_complete_test(){
-    let _context = get_context(b"mark_todo_as_complete_or_incomplete".to_vec(), false);
+    // let _context = get_context(b"mark_todo_as_complete_or_incomplete".to_vec(), false);
+    let _context = get_context(false);
+
     testing_env!(_context);
     let mut todos: Todos = Todos { todos: Vec::new()};
     todos.add_todo("Learn How to code in rust".to_string());
@@ -124,7 +144,7 @@ mod tests {
             assert_eq!(x_.complete, true);
         }
         None => {
-          env::log(b"Todo not found");
+          env::log_str("Todo not found");
         }
     }
 
@@ -132,12 +152,14 @@ mod tests {
 
   #[test]
   fn get_user_todos_test(){
-    let _context = get_context(b"get_user_todos".to_vec(), false);
+    // let _context = get_context(b"get_user_todos".to_vec(), false);
+    let _context = get_context(false);
+
     testing_env!(_context);
     let mut todos: Todos = Todos { todos: Vec::new()};
 
     todos.add_todo("Learn How to code in rust".to_string());
-    let user_todos = todos.get_user_todos("dalmasonto.testnet".to_string());
+    let user_todos = todos.get_my_todos();
     
     assert_eq!(user_todos.len(), 1);
   }
