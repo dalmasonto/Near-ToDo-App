@@ -23,6 +23,7 @@ A(Todos) ---> H(get_my_todos) --> I(To get your todos) --> J(This is a complete 
  4.  **To delete a todo** - `near call dalmasonto.testnet delete_todo '{"todo_id": <id> }' --accountId youraccount.testnet`
 
 > **Pro Tip** - Replace `youraccount.testnet` with your ***Testnet account***
+
 > **Don't forget** - `<id>` Should be replaced with the right id of a todo you get after adding a new todo.
 
 ## Author
