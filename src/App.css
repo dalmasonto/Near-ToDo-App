@@ -1,38 +1,114 @@
-.App {
-  text-align: center;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+:root {
+  --primary-color: #080a2a;
+  --secondary-color: #ff075e;
+  --box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.043);
+  --nav-height: 60px;
+  --bg: white;
+  --color: #050723;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+*::selection {
+  background: var(--secondary-color);
+  color: var(--primary-color);
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+body {
+  color: var(--color) !important;
+}
+
+.custom-bg {
+  background-color: var(--bg);
+}
+
+.custom-navbar {
+  background-color: var(--bg);
+  padding: 0.5rem;
+  box-shadow: var(--box-shadow);
+  height: var(--nav-height);
+}
+
+.custom-navbar .nav-link {
+  color: var(--color) !important;
+  font-size: 18px;
+}
+
+.navbar-brand {
+  color: var(--secondary-color) !important;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.nav-link.active {
+  color: var(--secondary-color) !important;
+}
+
+.nav-btn {
+  background-color: var(--secondary-color) !important;
+  color: var(--primary-color) !important;
+  border: none;
+  border-radius: 10px !important;
+  padding: 10px 50px !important;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+
+/* Index page */
+.home,
+.fullscreen-section {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  min-height: calc(100vh - var(--nav-height) - 80px);
 }
 
-.App-link {
-  color: #61dafb;
+.title {
+  font-size: 72px;
+  /* font-weight: 500; */
+  /* color: var(--primary-color); */
+  margin-bottom: 1rem;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.description {
+  font-size: 18px;
+  font-weight: 400;
+}
+
+/* End of index */
+
+.custom-card {
+  background-color: var(--bg);
+  box-shadow: var(--box-shadow);
+  /* padding: 1rem; */
+  /* margin-bottom: 1rem; */
+  border-radius: 10px;
+}
+
+.custom-btn {
+  background-color: var(--secondary-color) !important;
+  color: var(--primary-color) !important;
+  border-radius: 10px;
+  padding: 10px 50px !important;
+  font-size: 18px;
+  font-weight: 500;
+  box-shadow: var(--box-shadow);
+}
+
+.todo-title p {
+  cursor: pointer;
+}
+
+.todohover:hover {
+  background-color: #ff075e23;
+  color: var(--primary-color);
 }
